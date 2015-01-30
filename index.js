@@ -6,6 +6,7 @@ var parse = require('css').parse;
 var fs = require('fs');
 
 var ABS_URL = /^url\(|:\/\//;
+var URL_REF = /^url\(|\)$/g;
 var QUOTED = /^['"]|['"]$/g;
 var RELATIVE = /^\./;
 var SEPARATOR = '/';
@@ -50,7 +51,10 @@ function reworkNPM(opts) {
     function resolveImport(rule) {
         var name = rule.import.replace(QUOTED, '');
         if (!isNpmImport(name)) {
-            return null;
+          name = rule.import.replace(URL_REF, '').replace(QUOTED, '');
+          if (!isNpmImport(name)) {
+              return null;
+          }
         }
 
         if (!RELATIVE.test(name)) {
